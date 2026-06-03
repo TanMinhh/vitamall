@@ -25,3 +25,6 @@ dist-ssr
 
 # Local dev tools (do not commit)
 dev-tools/
+
+# Environment file
+.env
