@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "watch-changes": "node dev-tools/watch-changes.js",
+    "commit-with-details": "node dev-tools/commit-with-details.js"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.13.0",
