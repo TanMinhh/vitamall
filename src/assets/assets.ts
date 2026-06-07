@@ -44,6 +44,8 @@ export const heroSectionData = {
 
 export const deliveryPartnerLoginImage = "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=200";
 
+export const figmaDesignUrl = "https://www.figma.com/design/xTAYfTbzEfv2QGVeboXw1T/VitaMall?node-id=0-1&t=odcR8HH0p95YbQMC-1";
+
 export const appPromoBannerData = {
     title: "Get fresh groceries in minutes",
     description: "Download the VitaMall app for exclusive deals, real-time tracking, and the freshest selection delivered right to your door.",
@@ -90,6 +92,7 @@ export const footerData = {
     bottom: {
         copyright: "© 2026 Mehtamin. All rights reserved.",
         links: [
+            { label: "Figma Prototype", href: figmaDesignUrl },
             { label: "Privacy Policy", href: "#" },
             { label: "Terms of Service", href: "#" },
         ],

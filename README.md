@@ -2,6 +2,8 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+Design source and prototype: [VitaMall Figma board](https://www.figma.com/design/xTAYfTbzEfv2QGVeboXw1T/VitaMall?node-id=0-1&t=odcR8HH0p95YbQMC-1)
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
