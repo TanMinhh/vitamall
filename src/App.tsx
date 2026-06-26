@@ -12,6 +12,7 @@ import MyOrders from "./pages/MyOrders"
 import OrderTracking from "./pages/OrderTracking"
 import Addresses from "./pages/Addresses"
 import ProtectedRoute from "./components/ProtectedRoute"
+import ErrorBoundary from "./ErrorBoundary"
 
 const App = () => {
   return (
@@ -24,7 +25,7 @@ const App = () => {
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Home />}></Route>
           <Route path="products" element={<Products />}></Route>
-          <Route path="products/:id" element={<ProductPage />}></Route>
+          <Route path="products/:id" element={<ErrorBoundary><ProductPage /></ErrorBoundary>}></Route>
           <Route path="search" element={<SearchResults />}></Route>
           <Route path="deals" element={<FlashDeals />}></Route>
           <Route element={<ProtectedRoute />}>
