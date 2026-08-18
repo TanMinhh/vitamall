@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import type { Product } from "../types"
 import { categoriesData, dummyProducts } from "../assets/assets"
@@ -11,10 +11,8 @@ import FilterPanel from "../components/FilterPanel"
 const Products = () => {
 
     const [searchParams, setSearchParams] = useSearchParams()
-    const [products, setProducts] = useState<Product[]>([])
-    const [totalPages, setTotalPages] = useState(1)
-    const [loading, setLoading] = useState(true)
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const [products] = useState<Product[]>(() => dummyProducts)
 
     const category = searchParams.get("category") || ""
     const organic = searchParams.get("organic") || ""
@@ -22,12 +20,6 @@ const Products = () => {
     const page = Number(searchParams.get("page")) || 1
     const minPrice = searchParams.get("minPrice") || ""
     const maxPrice = searchParams.get("maxPrice") || ""
-
-    const fetchProducts = async () => {
-        setLoading(true)
-        setProducts(dummyProducts.filter((p) => p.category === category || category === ""))
-        setLoading(false)
-    }
 
     const updateFilter = (key: string, value: string) => {
         const newParams = new URLSearchParams(searchParams)
@@ -46,11 +38,25 @@ const Products = () => {
 
     const activeCategory = categoriesData.find((c) => c.slug === category)
     const hasFilters = category || organic || minPrice || maxPrice
+    const min = minPrice ? Number(minPrice) : undefined
+    const max = maxPrice ? Number(maxPrice) : undefined
 
-    useEffect(() => {
-        fetchProducts()
-        const sort = searchParams.get("sort") || ""
-    }, [category, organic, sort, page, minPrice, maxPrice])
+    const filteredProducts = products
+        .filter((product) => category === "" || product.category === category)
+        .filter((product) => organic === "" || product.isOrganic === (organic === "true"))
+        .filter((product) => min === undefined || product.price >= min)
+        .filter((product) => max === undefined || product.price <= max)
+
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
+        if (sort === "price_asc") return a.price - b.price
+        if (sort === "price_desc") return b.price - a.price
+        if (sort === "rating") return b.rating - a.rating
+        if (sort === "name") return a.name.localeCompare(b.name)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+
+    const loading = false
+    const totalPages = 1
 
     return (
         <div className="min-h-screen bg-app-cream">
@@ -74,7 +80,7 @@ const Products = () => {
                         <div className="flex items-center justify-between mb-6">
                             <div>
                                 <h1 className="text-2xl font-semibold text-app-green">{activeCategory ? activeCategory.name : "All Products"}</h1>
-                                <p className="text-sm text-app-text-light mt-0.5">{products.length} products found</p>
+                                <p className="text-sm text-app-text-light mt-0.5">{sortedProducts.length} products found</p>
                             </div>
 
                             <div className="flex flex-col lg:items-center gap-3">
@@ -101,7 +107,7 @@ const Products = () => {
 
                         {loading ? (
                             <Loading></Loading>
-                        ) : products.length === 0 ? (
+                        ) : sortedProducts.length === 0 ? (
                             <div className="text-center py-16">
                                 <p className="text-lg font-semibold text-app-green mb-2">No product found</p>
                                 <p className="text-sm text-app-text-light mb-4">Try adjusting your filters on search terms</p>
@@ -109,7 +115,7 @@ const Products = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 xl:gap-8">
-                                {products.map((product) => product.stock > 0 && (
+                                {sortedProducts.map((product) => product.stock > 0 && (
                                     <ProductCard key={product._id} product={product}></ProductCard>
                                 ))}
                             </div>
@@ -130,10 +136,13 @@ const Products = () => {
             {mobileFiltersOpen && (
                 <>
                     <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setMobileFiltersOpen(false)}>
-                        <div className="fixed bottom-0 left-0 right-0 bg-white z-50 rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
+                        <div
+                            className="fixed bottom-0 left-0 right-0 bg-white z-50 rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up"
+                            onClick={(event) => event.stopPropagation()}
+                        >
                             <div className="flex items-center justify-between p-4 border-b border-app-border">
                                 <h3 className="text-lg font-semibold text-app-green">Filters</h3>
-                                <button className="p-2 hover:bg-app-cream rounded-lg">
+                                <button className="p-2 hover:bg-app-cream rounded-lg" onClick={() => setMobileFiltersOpen(false)}>
                                     <XIcon className="size-5" />
                                 </button>
                             </div>
