@@ -678,10 +678,10 @@ export const dummyAdminDashboardData = {
                 },
             ],
             paymentMethod: "cash",
-            subtotal: 230,
+            subtotal: 276000,
             deliveryFee: 0,
-            tax: 18.4,
-            total: 248.4,
+            tax: 22080,
+            total: 298080,
             status: "Delivered",
             statusHistory: [
                 {
@@ -764,12 +764,12 @@ export const dummyDashboardOrdersData = [
             city: "Ho Chi Minh",
             state: "HCM",
             zip: "876543",
-            lat: 40.7128,
-            lng: -74.006,
+            lat: 10.7371,
+            lng: 106.7204,
         },
         liveLocation: {
-            lat: 40.7128,
-            lng: -74.006,
+            lat: 10.7371,
+            lng: 106.7204,
             updatedAt: "2026-06-02T08:41:27.211Z",
         },
         _id: "69d366617ed7e54198d67dac",
@@ -799,10 +799,10 @@ export const dummyDashboardOrdersData = [
             },
         ],
         paymentMethod: "cash",
-        subtotal: 230,
+        subtotal: 366000,
         deliveryFee: 0,
-        tax: 18.4,
-        total: 248.4,
+        tax: 29280,
+        total: 395280,
         status: "Delivered",
         statusHistory: [
             { status: "Placed", note: "Order placed successfully", _id: "69d366617ed7e54198d67daf", timestamp: "2026-06-02T07:53:05.769Z" },
@@ -819,8 +819,8 @@ export const dummyDashboardOrdersData = [
         __v: 4,
     },
     {
-        shippingAddress: { label: "Home", address: "Huynh Tan Phat", city: "Ho Chi Minh", state: "HCM", zip: "876543", lat: 40.7128, lng: -74.006 },
-        liveLocation: { lat: 40.7128, lng: -74.006, updatedAt: "2026-06-02T08:41:27.211Z" },
+        shippingAddress: { label: "Home", address: "Huynh Tan Phat", city: "Ho Chi Minh", state: "HCM", zip: "876543", lat: 10.7371, lng: 106.7204 },
+        liveLocation: { lat: 10.7371, lng: 106.7204, updatedAt: "2026-06-02T08:41:27.211Z" },
         _id: "69d366617ed7e54198d67dad",
         user: { _id: "69bb6caf448f2d818db59122", name: "Admin", email: "admin@admin.com" },
         items: [
@@ -828,10 +828,10 @@ export const dummyDashboardOrdersData = [
             { product: "69c22613ae75a98c7cd13b36", name: "Barley 1kg", image: "https://raw.githubusercontent.com/avinashdm/gs-images/main/greencart/spb5sgy8g24rned9nwog.png", price: 186000, quantity: 1, unit: "1kg", _id: "69d366617ed7e54198d67dae" },
         ],
         paymentMethod: "cash",
-        subtotal: 230,
+        subtotal: 366000,
         deliveryFee: 0,
-        tax: 18.4,
-        total: 248.4,
+        tax: 29280,
+        total: 395280,
         status: "Out for Delivery",
         statusHistory: [
             { status: "Placed", note: "Order placed successfully", _id: "69d366617ed7e54198d67daf", timestamp: "2026-06-02T07:53:05.769Z" },
@@ -855,6 +855,6 @@ export const dummyCartData = [
 ];
 
 export const dummyAddressData = [
-    { label: "Home", address: "123 Huynh Tan Phat St ", city: "Ho Chi Minh", state: "HCM", zip: "10001", isDefault: true, lat: 40.7128, lng: -74.006, _id: "69d3652df9a340288f1a0f8c" },
-    { label: "Work", address: "456 Ngo Quyen St ", city: "Ho Chi Minh", state: "HCM", zip: "10002", isDefault: false, lat: 40.7128, lng: -74.006, _id: "69d3652df9a340288f1a0f8d" },
+    { label: "Home", address: "123 Huynh Tan Phat St ", city: "Ho Chi Minh", state: "HCM", zip: "10001", isDefault: true, lat: 10.7371, lng: 106.7204, _id: "69d3652df9a340288f1a0f8c" },
+    { label: "Work", address: "456 Ngo Quyen St ", city: "Ho Chi Minh", state: "HCM", zip: "10002", isDefault: false, lat: 10.7371, lng: 106.7204, _id: "69d3652df9a340288f1a0f8d" },
 ];
