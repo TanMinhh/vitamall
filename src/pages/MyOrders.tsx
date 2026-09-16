@@ -63,7 +63,7 @@ const MyOrders = () => {
                                         <p className="text-sm font-medium text-app-green">Order #{order._id.slice(-8).toUpperCase()}</p>
                                         <div className="flex items-center gap-2 mt-1">
                                             <CalendarIcon className="size-3 text-app-text-light"></CalendarIcon>
-                                            <span className="text-xs text-app-text-light">{new Date(order.createdAt).toLocaleDateString("vi-VN", { month: "short", day: "numeric", year: "numeric" })}</span>
+                                            <span className="text-xs text-app-text-light">{new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
