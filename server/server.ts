@@ -1,0 +1,34 @@
+import "dotenv/config";
+import express, { NextFunction, Request, Response } from 'express';
+import cors from "cors";
+import authRouter from "./routes/authRoutes.js";
+import productRouter from "./routes/productRoutes.js";
+import uploadRouter from "./routes/uploadRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
+
+const app = express();
+
+// Error Handler
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+});
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+const port = process.env.PORT || 5000;
+
+app.get('/', (req: Request, res: Response) => {
+    res.send('Hello World! Mehhhhhsi!');
+});
+
+app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
+app.use("/api/upload", uploadRouter);
+app.use("/api/orders", orderRouter);
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
