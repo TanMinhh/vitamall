@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npx prisma generate",
     "start": "tsx server.ts",
     "server": "nodemon --exec tsx server.ts",
     "build": "tsc"
@@ -20,8 +21,10 @@
     "cors": "^2.8.6",
     "dotenv": "^18.0.2",
     "express": "^5.2.1",
+    "inngest": "^4.21.1",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.4.0"
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.15"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -30,6 +33,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.6.2",
+    "@types/nodemailer": "^8.0.2",
     "nodemon": "^3.1.14",
     "prisma": "7.10.0",
     "ts-node": "^10.9.2",
