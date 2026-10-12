@@ -7,7 +7,7 @@ import { dummyProducts } from "../../assets/assets";
 
 export default function AdminProducts() {
 
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND";
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
 
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -56,7 +56,7 @@ export default function AdminProducts() {
                                 </tr>
                             ) : (
                                 products.map(product => (
-                                    <tr key={product._id} className="hover:bg-zinc-50/50 transition-colors">
+                                    <tr key={product.id} className="hover:bg-zinc-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <img src={product.image} alt={product.name} className="size-12 rounded-lg object-cover" />
@@ -66,7 +66,7 @@ export default function AdminProducts() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 font-medium">{product.price.toFixed(0)} {currency}</td>
+                                        <td className="px-6 py-4 font-medium">{product.price.toFixed(2)} {currency}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                                                 {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
@@ -74,10 +74,10 @@ export default function AdminProducts() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <Link to={`/admin/products/${product._id}/edit`} className="p-2 text-zinc-500 hover:text-app-orange bg-zinc-100 hover:bg-orange-50 rounded-lg transition-colors">
+                                                <Link to={`/admin/products/${product.id}/edit`} className="p-2 text-zinc-500 hover:text-app-orange bg-zinc-100 hover:bg-orange-50 rounded-lg transition-colors">
                                                     <EditIcon className="size-4" />
                                                 </Link>
-                                                <button onClick={() => handleMarkOutOfStock(product._id, product.name)} title="Mark Out of Stock" className="p-2 text-zinc-500 hover:text-red-600 bg-zinc-100 hover:bg-red-50 rounded-lg transition-colors">
+                                                <button onClick={() => handleMarkOutOfStock(product.id, product.name)} title="Mark Out of Stock" className="p-2 text-zinc-500 hover:text-red-600 bg-zinc-100 hover:bg-red-50 rounded-lg transition-colors">
                                                     <XIcon className="size-4" />
                                                 </button>
                                             </div>

@@ -2,15 +2,14 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { UseCart } from "../context/CartContext"
 import { useEffect, useState } from "react"
 import type { Product } from "../types"
-import { dummyProducts } from "../assets/assets"
 import Loading from "../components/Loading"
 import { ArrowLeftIcon, ArrowRightIcon, HomeIcon, LeafIcon, MinusIcon, PlusIcon, ShoppingCartIcon, StarIcon } from "lucide-react"
 import DummyReviewsSection from "../assets/DummyReviewsSection"
 import ProductCard from "../components/ProductCard"
-
+import api from "../config/api"
 
 const ProductPage = () => {
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND"
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$"
     const { id } = useParams()
     const navigate = useNavigate()
     const { items, addToCart, updateQuantity, removeFromCart } = UseCart()
@@ -23,16 +22,26 @@ const ProductPage = () => {
         setLoading(true)
         setLocalQuantity(1)
         window.scrollTo(0, 0)
-        const product = dummyProducts.find((p) => p._id === id)
-        setProduct(product!)
-        setRelatedProducts(dummyProducts.filter((p) => p._id !== id))
-        setLoading(false)
+        api.get(`/products/${id}`)
+            .then(({ data }) => {
+                setProduct(data.product)
+                return api.get(`/products?category=${data.product.category}`)
+            }).then(({ data }) => {
+                setRelatedProducts(data.products.filter((p: Product) => p.id !== id))
+            }).catch(() => navigate("/products")).finally(() => setLoading(false))
     }, [id, navigate])
 
     if (loading) return <Loading />
     if (!product) return null
 
-    const cartItem = items.find((item) => item.product._id === product._id)
+    const price = Number(product.price)
+    const originalPrice = Number(product.originalPrice)
+    const discount = Number(product.discount) || (
+        originalPrice > price
+            ? Math.round(((originalPrice - price) / originalPrice) * 100)
+            : 0
+    )
+    const cartItem = items.find((item) => item.product.id === product.id)
     const inCart = !!cartItem
     const displayQuantity = inCart ? cartItem.quantity : localQuantity
     const categoryLabel = product.category.replace(/-/g, " ")
@@ -40,9 +49,9 @@ const ProductPage = () => {
     const handleMinus = () => {
         if (inCart) {
             if (cartItem.quantity > 1)
-                updateQuantity(product._id, cartItem.quantity - 1)
+                updateQuantity(product.id, cartItem.quantity - 1)
             else
-                removeFromCart(product._id)
+                removeFromCart(product.id)
         } else {
             setLocalQuantity(Math.max(1, localQuantity - 1))
         }
@@ -50,7 +59,7 @@ const ProductPage = () => {
 
     const handlePlus = () => {
         if (inCart)
-            updateQuantity(product._id, cartItem.quantity + 1)
+            updateQuantity(product.id, cartItem.quantity + 1)
         else
             setLocalQuantity(localQuantity + 1)
     }
@@ -88,9 +97,9 @@ const ProductPage = () => {
                                         Organic
                                     </span>
                                 )}
-                                {product.discount > 0 && (
+                                {discount > 0 && (
                                     <span className="px-2.5 py-1 text-xs font-semibold bg-app-orange text-white rounded-full">
-                                        {product.discount}% OFF
+                                        {discount}% OFF
                                     </span>
                                 )}
                             </div>
@@ -110,9 +119,9 @@ const ProductPage = () => {
                                 </div>
                             )}
                             <div className="flex items-baseline gap-3 mb-5">
-                                <span className="text-3xl md:text-4xl font-semibold text-app-green">{product.price.toFixed(0)}{currency}</span>
-                                {product.originalPrice > product.price && (
-                                    <span className="text-lg text-app-text-light line-through">{product.originalPrice.toFixed(0)}{currency}</span>
+                                <span className="text-3xl md:text-4xl font-semibold text-app-green">{price.toFixed(2)}{currency}</span>
+                                {originalPrice > price && (
+                                    <span className="text-lg text-app-text-light line-through">{originalPrice.toFixed(2)}{currency}</span>
                                 )}
                             </div>
                             <p className="text-sm text-app-text-light leading-relaxed mb-6">{product.description}</p>
@@ -155,7 +164,7 @@ const ProductPage = () => {
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 xl:gap-8">
                             {relatedProducts.slice(0, 5).map((pr) => (
-                                <ProductCard key={pr._id} product={pr} />
+                                <ProductCard key={pr.id} product={pr} />
                             ))}
                         </div>
                     </section>

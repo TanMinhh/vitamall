@@ -10,7 +10,7 @@ import OrderTimeLine from "../components/OrderTracking/OrderTimeLine";
 
 
 const OrderTracking = () => {
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND";
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
     const { id } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState<Order | null>(null);
@@ -18,7 +18,7 @@ const OrderTracking = () => {
     const [liveLocation] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
-        setOrder(dummyDashboardOrdersData.find((o) => o._id === id) as any)
+        setOrder(dummyDashboardOrdersData.find((o) => o.id === id) as any)
     }, [id, navigate])
 
     if (loading) return <Loading />
@@ -32,7 +32,7 @@ const OrderTracking = () => {
                 </button>
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-2xl font-semibold text-app-green">Order #{order!._id.slice(-8).toUpperCase()}</h1>
+                        <h1 className="text-2xl font-semibold text-app-green">Order #{order!.id.slice(-8).toUpperCase()}</h1>
                         <p className="test-sm text-app-text-light mt-1">Place on {new Date(order!.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
                     </div>
                     <span className={`px-4 py-1.5 text-sm font-semibold rounded-full ${order!.status === "Delivered" ? "bg-green-100 text-green-700" : order!.status === "Cancelled" ? "bg-red-100 text-red-700" : "bg-app-orange/10 text-app-orange"}`}>
@@ -89,7 +89,7 @@ const OrderTracking = () => {
                                             <p className="text-xs text-app-text-light">x{item.quantity}</p>
                                         </div>
                                         <span className="text-sm font-semibold">
-                                            {(item.price * item.quantity).toFixed(0)}{currency}
+                                            {(item.price * item.quantity).toFixed(2)}{currency}
                                         </span>
                                     </div>
                                 ))}
@@ -97,19 +97,19 @@ const OrderTracking = () => {
                             <div className="mt-4 pt-3 border-t border-app-border space-y-1.5 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-app-text-light">Subtotal</span>
-                                    <span>{order?.subtotal.toFixed(0)}{currency}</span>
+                                    <span>{order?.subtotal.toFixed(2)}{currency}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-app-text-light">Delivery</span>
-                                    <span>{order?.deliveryFee === 0 ? "Free" : `${order?.deliveryFee.toFixed(0)}${currency}`}</span>
+                                    <span>{order?.deliveryFee === 0 ? "Free" : `${order?.deliveryFee.toFixed(2)}${currency}`}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-app-text-light">Tax</span>
-                                    <span>{order?.tax.toFixed(0)}{currency}</span>
+                                    <span>{order?.tax.toFixed(2)}{currency}</span>
                                 </div>
                                 <div className="flex justify-between pt-2 border-t border-app-border font-semibold text-app-green">
                                     <span>Total</span>
-                                    <span>{order?.total.toFixed(0)}{currency}</span>
+                                    <span>{order?.total.toFixed(2)}{currency}</span>
                                 </div>
                             </div>
                         </div>

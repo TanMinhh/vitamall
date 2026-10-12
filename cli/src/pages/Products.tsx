@@ -1,18 +1,37 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import type { Product } from "../types"
-import { categoriesData, dummyProducts } from "../assets/assets"
 import { ChevronDown, Home, SlidersHorizontal, XIcon } from "lucide-react"
 import ProductCard from "../components/ProductCard"
 import Loading from "../components/Loading"
 import FilterPanel from "../components/FilterPanel"
+import api from "../config/api"
+import toast from "react-hot-toast"
+import { AxiosError } from "axios"
+
+const categoryLabels: Record<string, string> = {
+    "fruits-vegetables": "Fruits & Vegetables",
+    "dairy-eggs": "Dairy & Eggs",
+    "meat-seafood": "Meat & Seafood",
+    "pantry-staples": "Pantry Staples",
+    "personal-care": "Personal Care",
+    "frozen-foods": "Frozen Foods",
+    "baby-care": "Baby Care",
+}
+
+const formatCategoryName = (category: string) => categoryLabels[category] || category
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
 
 
 const Products = () => {
 
     const [searchParams, setSearchParams] = useSearchParams()
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-    const [products] = useState<Product[]>(() => dummyProducts)
+    const [products, setProducts] = useState<Product[]>([])
+    const [categories, setCategories] = useState<{ slug: string; name: string }[]>([])
+    const [loading, setLoading] = useState(true)
 
     const category = searchParams.get("category") || ""
     const organic = searchParams.get("organic") || ""
@@ -20,6 +39,66 @@ const Products = () => {
     const page = Number(searchParams.get("page")) || 1
     const minPrice = searchParams.get("minPrice") || ""
     const maxPrice = searchParams.get("maxPrice") || ""
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const { data } = await api.get("/products")
+                const categoryOptions = Array.from(
+                    new Map((data.products as Product[]).map((product) => [
+                        product.category,
+                        { slug: product.category, name: formatCategoryName(product.category) }
+                    ])).values()
+                )
+                setCategories(categoryOptions)
+            } catch (error: unknown) {
+                const message = error instanceof AxiosError
+                    ? error.response?.data?.message || error.message
+                    : error instanceof Error
+                        ? error.message
+                        : "Unable to load categories"
+                toast.error(message)
+            }
+        }
+
+        fetchCategories()
+    }, [])
+
+    useEffect(() => {
+        let isCurrentRequest = true
+
+        const fetchProducts = async () => {
+            setLoading(true)
+            try {
+                const params = new URLSearchParams()
+                if (category) params.set("category", category)
+                if (minPrice) params.set("minPrice", minPrice)
+                if (maxPrice) params.set("maxPrice", maxPrice)
+                if (sort === "price_asc") params.set("sort", "price-low")
+                if (sort === "price_desc") params.set("sort", "price-high")
+
+                const { data } = await api.get(`/products?${params.toString()}`)
+                if (isCurrentRequest) setProducts(data.products)
+            } catch (error: unknown) {
+                if (isCurrentRequest) {
+                    setProducts([])
+                    const message = error instanceof AxiosError
+                        ? error.response?.data?.message || error.message
+                        : error instanceof Error
+                            ? error.message
+                            : "Unable to load products"
+                    toast.error(message)
+                }
+            } finally {
+                if (isCurrentRequest) setLoading(false)
+            }
+        }
+
+        fetchProducts()
+        return () => {
+            isCurrentRequest = false
+        }
+    }, [category, minPrice, maxPrice, sort])
 
     const updateFilter = (key: string, value: string) => {
         const newParams = new URLSearchParams(searchParams)
@@ -36,7 +115,7 @@ const Products = () => {
 
     const clearFilters = () => setSearchParams({})
 
-    const activeCategory = categoriesData.find((c) => c.slug === category)
+    const activeCategory = categories.find((c) => c.slug === category)
     const hasFilters = category || organic || minPrice || maxPrice
     const min = minPrice ? Number(minPrice) : undefined
     const max = maxPrice ? Number(maxPrice) : undefined
@@ -55,7 +134,6 @@ const Products = () => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
 
-    const loading = false
     const totalPages = 1
 
     return (
@@ -72,7 +150,7 @@ const Products = () => {
                 <div className="flex gap-8 xl:gap-10">
                     <aside className="hidden lg:block w-64 shrink-0">
                         <div className="bg-white rounded-2xl p-4 sticky top-24">
-                            <FilterPanel categories={categoriesData} category={category} organic={organic} minPrice={minPrice} maxPrice={maxPrice} updateFilter={updateFilter} clearFilters={clearFilters} hasFilters={hasFilters}></FilterPanel>
+                            <FilterPanel categories={categories} category={category} organic={organic} minPrice={minPrice} maxPrice={maxPrice} updateFilter={updateFilter} clearFilters={clearFilters} hasFilters={hasFilters}></FilterPanel>
                         </div>
                     </aside>
 
@@ -116,7 +194,7 @@ const Products = () => {
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 xl:gap-8">
                                 {sortedProducts.map((product) => product.stock > 0 && (
-                                    <ProductCard key={product._id} product={product}></ProductCard>
+                                    <ProductCard key={product.id} product={product}></ProductCard>
                                 ))}
                             </div>
                         )}
@@ -147,7 +225,7 @@ const Products = () => {
                                 </button>
                             </div>
                             <div className="p-4">
-                                <FilterPanel categories={categoriesData} category={category} organic={organic} minPrice={minPrice} maxPrice={maxPrice} updateFilter={updateFilter} clearFilters={clearFilters} hasFilters={hasFilters}></FilterPanel>
+                                <FilterPanel categories={categories} category={category} organic={organic} minPrice={minPrice} maxPrice={maxPrice} updateFilter={updateFilter} clearFilters={clearFilters} hasFilters={hasFilters}></FilterPanel>
                             </div>
                         </div>
                     </div>

@@ -7,7 +7,7 @@ import Loading from "../components/Loading";
 import { CalendarIcon, ChevronRightIcon, PackageIcon } from "lucide-react";
 
 const MyOrders = () => {
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND"
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$"
     const [orders, setOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState("all")
@@ -57,10 +57,10 @@ const MyOrders = () => {
                 ) : (
                     <div className="space-y-4">
                         {orders.map((order) => (
-                            <Link to={`/orders/${order._id}`} key={order._id} className="block max-w-4xl bg-white rounded-2xl p-5 hover:shadow transition-all">
+                            <Link to={`/orders/${order.id}`} key={order.id} className="block max-w-4xl bg-white rounded-2xl p-5 hover:shadow transition-all">
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
-                                        <p className="text-sm font-medium text-app-green">Order #{order._id.slice(-8).toUpperCase()}</p>
+                                        <p className="text-sm font-medium text-app-green">Order #{order.id.slice(-8).toUpperCase()}</p>
                                         <div className="flex items-center gap-2 mt-1">
                                             <CalendarIcon className="size-3 text-app-text-light"></CalendarIcon>
                                             <span className="text-xs text-app-text-light">{new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>

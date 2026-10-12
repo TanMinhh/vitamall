@@ -10,14 +10,14 @@ import CheckoutReview from "../components/Checkout/CheckoutReview";
 
 
 const Checkout = () => {
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND";
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
     const navigate = useNavigate();
     const { items, cartTotal } = UseCart();
     const { user } = { user: { addresses: dummyAddressData } };
     const [step, setStep] = useState("address");
     const [loading, setLoading] = useState(false);
     const [address, setAddress] = useState<Address>({
-        _id: "",
+        id: "",
         label: "Home",
         address: "",
         city: "",
@@ -28,7 +28,7 @@ const Checkout = () => {
         lng: 0
     });
     const [paymentMethod, setPaymentMethod] = useState("card");
-    const deliveryFee = cartTotal > 100000 ? 0 : 30000;
+    const deliveryFee = cartTotal > 100 ? 0 : 5;
     const tax = cartTotal * 0.08;
     const total = cartTotal + deliveryFee + tax;
     const steps: { key: string, label: string, icon: typeof MapPinIcon }[] = [
@@ -44,7 +44,7 @@ const Checkout = () => {
         if (user?.addresses?.length) {
             const defaultAddr = user.addresses.find((a) => a.isDefault) || user.addresses[0]
             setAddress({
-                _id: defaultAddr?._id,
+                id: defaultAddr?.id,
                 label: defaultAddr?.label,
                 address: defaultAddr?.address,
                 city: defaultAddr?.city,
@@ -96,7 +96,7 @@ const Checkout = () => {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-app-text-light">Subtotal ({items.length} items)</span>
-                                <span>{cartTotal.toFixed(0)} {currency}</span>
+                                <span>{cartTotal.toFixed(2)} {currency}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-app-text-light">Delivery Fee</span>
@@ -104,11 +104,11 @@ const Checkout = () => {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-app-text-light">Tax</span>
-                                <span>{tax.toFixed(0)} {currency}</span>
+                                <span>{tax.toFixed(2)} {currency}</span>
                             </div>
                             <div className="flex justify-between pt-3 border-t border-app-border text-base font-semibold">
                                 <span>Total</span>
-                                <span className="text-app-green">{total.toFixed(0)} {currency}</span>
+                                <span className="text-app-green">{total.toFixed(2)} {currency}</span>
                             </div>
                         </div>
                     </div>
