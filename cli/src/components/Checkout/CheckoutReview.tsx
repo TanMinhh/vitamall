@@ -11,7 +11,7 @@ interface CheckoutReviewProps {
 
 export default function CheckoutReview({ address, items, handlePlaceOrder, loading, total }: CheckoutReviewProps) {
 
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND";
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
 
     return (
         <div className="bg-white rounded-2xl p-6 animate-fade-in">
@@ -33,19 +33,19 @@ export default function CheckoutReview({ address, items, handlePlaceOrder, loadi
             {/* Items */}
             <div className="space-y-3 mb-5">
                 {items.map((item) => (
-                    <div key={item.product._id} className="flex items-center gap-3">
+                    <div key={item.product.id} className="flex items-center gap-3">
                         <img src={item.product.image} alt={item.product.name} className="size-12 rounded-lg object-cover" />
                         <div className="flex-1">
                             <p className="text-sm font-medium text-app-green">{item.product.name}</p>
                             <p className="text-xs text-app-text-light">Quantity: {item.quantity}</p>
                         </div>
-                        <span className="text-sm font-semibold">{(item.product.price * item.quantity).toFixed(0)} {currency}</span>
+                        <span className="text-sm font-semibold">{(item.product.price * item.quantity).toFixed(2)} {currency}</span>
                     </div>
                 ))}
             </div>
 
             <button onClick={handlePlaceOrder} disabled={loading} className="w-full py-3 bg-app-orange text-white font-semibold rounded-xl hover:bg-app-orange-dark transition-colors disabled:opacity-60 active:scale-[0.98]">
-                {loading ? "Placing Order..." : `Place Order — ${total.toFixed(0)} ${currency}`}
+                {loading ? "Placing Order..." : `Place Order — ${total.toFixed(2)} ${currency}`}
             </button>
         </div>
     )

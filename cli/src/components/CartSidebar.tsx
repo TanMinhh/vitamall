@@ -5,11 +5,11 @@ import { ArrowRightIcon, MinusIcon, PlusIcon, ShoppingBagIcon, Trash2Icon, XIcon
 
 const CartSidebar = () => {
 
-    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "VND";
+    const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
     const { items, updateQuantity, removeFromCart, cartTotal, isCartOpen, setIsCartOpen } = UseCart()
     const navigate = useNavigate()
     if (!isCartOpen) return null
-    const deliveryFee = cartTotal > 100000 ? 0 : 50000;
+    const deliveryFee = cartTotal > 100 ? 0 : 5;
     const grantTotal = cartTotal + deliveryFee;
 
     return (
@@ -35,26 +35,26 @@ const CartSidebar = () => {
                         </div>
                     ) : (
                         items.map((item) => (
-                            <div key={item.product._id} className="flex gap-3 bg-app-cream/60 rounded-xl p-3">
+                            <div key={item.product.id} className="flex gap-3 bg-app-cream/60 rounded-xl p-3">
                                 <img src={item.product.image} alt={item.product.name} className="size-16 rounded-lg object-cover shrink-0" />
                                 <div className="flex-1 min-w-0">
                                     <h4 className="text-sm font-semibold truncate">{item.product.name}</h4>
-                                    <p className="text-xs text-app-text-light">{item.product.price.toFixed(0)} {currency} / {item.product.unit}</p>
+                                    <p className="text-xs text-app-text-light">{item.product.price.toFixed(2)} {currency} / {item.product.unit}</p>
                                     <div className="flex items-center justify-between mt-2">
                                         <div className="flex items-center gap-1.5">
-                                            <button onClick={() => updateQuantity(item.product._id, item.quantity - 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
+                                            <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
                                                 <MinusIcon className="size-3"></MinusIcon>
                                             </button>
                                             <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.product._id, item.quantity + 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
+                                            <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
                                                 <PlusIcon className="size-3"></PlusIcon>
                                             </button>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-semibold">
-                                                {(item.product.price * item.quantity).toFixed(0)} {currency}
+                                                {(item.product.price * item.quantity).toFixed(2)} {currency}
                                             </span>
-                                            <button onClick={() => removeFromCart(item.product._id)} className="p-1 text-app-text-light hover:text-app-error transition-colors">
+                                            <button onClick={() => removeFromCart(item.product.id)} className="p-1 text-app-text-light hover:text-app-error transition-colors">
                                                 <Trash2Icon className="size-4" />
                                             </button>
                                         </div>
@@ -69,18 +69,18 @@ const CartSidebar = () => {
                     <div className="p-5 border-t border-app-border space-y-3">
                         <div className="flex justify-between text-sm">
                             <span className="text-app-text-light">Subtotal</span>
-                            <span className="font-medium">{cartTotal.toFixed(0)} {currency}</span>
+                            <span className="font-medium">{cartTotal.toFixed(2)} {currency}</span>
                         </div>
 
                         <div className="flex justify-between text-sm">
                             <span className="text-app-text-light">Delivery</span>
-                            <span className="font-medium">{deliveryFee === 0 ? <span className="text-app-success">Free</span> : `${deliveryFee.toFixed(0)} ${currency}`}</span>
+                            <span className="font-medium">{deliveryFee === 0 ? <span className="text-app-success">Free</span> : `${deliveryFee.toFixed(2)} ${currency}`}</span>
                         </div>
 
-                        {deliveryFee > 0 && <p className="text-xs text-app-text-light text-center">Free delivery on orders over 100.000 {currency}!</p>}
+                        {deliveryFee > 0 && <p className="text-xs text-app-text-light text-center">Free delivery on orders over 100 {currency}!</p>}
                         <div className="flex justify-between text-base font-semibold border-t border-app-border pt-3">
                             <span>Total</span>
-                            <span>{grantTotal.toFixed(0)} {currency}</span>
+                            <span>{grantTotal.toFixed(2)} {currency}</span>
                         </div>
                         <button onClick={() => { setIsCartOpen(false); navigate('/checkout'); window.scrollTo(0, 0) }} className="w-full py-3 bg-app-orange text-white font-semibold rounded-xl hover:bg-app-orange-dark transition-colors flex-center gap-2 active:scale-[0.98]">
                             Proceed to Checkout <ArrowRightIcon className="size-4"></ArrowRightIcon>
