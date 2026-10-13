@@ -9,7 +9,7 @@ const CartSidebar = () => {
     const { items, updateQuantity, removeFromCart, cartTotal, isCartOpen, setIsCartOpen } = UseCart()
     const navigate = useNavigate()
     if (!isCartOpen) return null
-    const deliveryFee = cartTotal > 100 ? 0 : 5;
+    const deliveryFee = cartTotal > 10 ? 0 : 5;
     const grantTotal = cartTotal + deliveryFee;
 
     return (

@@ -28,7 +28,7 @@ const Checkout = () => {
         lng: 0
     });
     const [paymentMethod, setPaymentMethod] = useState("card");
-    const deliveryFee = cartTotal > 100 ? 0 : 5;
+    const deliveryFee = cartTotal > 10 ? 0 : 5;
     const tax = cartTotal * 0.08;
     const total = cartTotal + deliveryFee + tax;
     const steps: { key: string, label: string, icon: typeof MapPinIcon }[] = [

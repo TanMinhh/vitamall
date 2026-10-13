@@ -4,14 +4,14 @@ import { StarIcon, ThumbsUpIcon } from "lucide-react";
 
 /* ─── Dummy Reviews Section ─── */
 const REVIEWERS = [
-    { name: "Ananya S.", avatar: "AS" },
-    { name: "Rahul M.", avatar: "RM" },
-    { name: "Priya K.", avatar: "PK" },
-    { name: "Vikram J.", avatar: "VJ" },
-    { name: "Meera D.", avatar: "MD" },
-    { name: "Arjun R.", avatar: "AR" },
-    { name: "Sneha T.", avatar: "ST" },
-    { name: "Karan P.", avatar: "KP" },
+    { name: "Khanh Le", avatar: "KL" },
+    { name: "Minh Le", avatar: "ML" },
+    { name: "Lucas Nguyen", avatar: "LN" },
+    { name: "Harry Tran", avatar: "HT" },
+    { name: "Khoi Pham", avatar: "KP" },
+    { name: "Andy Truong", avatar: "AT" },
+    { name: "Man Gia", avatar: "MG" },
+    { name: "Khoi Dang", avatar: "KD" },
 ];
 
 const COMMENTS = [
@@ -33,7 +33,7 @@ function seededRandom(seed: string) {
 
 export default function DummyReviewsSection({ product }: { product: Product }) {
     const reviews = useMemo(() => {
-        const rng = seededRandom(product._id);
+        const rng = seededRandom(product.id);
         const count = Math.min(product.reviewCount, 6);
         const daysAgo = [3, 7, 14, 21, 35, 48];
         return Array.from({ length: count }, (_, i) => {
