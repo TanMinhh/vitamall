@@ -1,4 +1,4 @@
-import { ClockIcon, CheckIcon, TruckIcon, PackageIcon } from "lucide-react";
+import { ClockIcon, CheckIcon, TruckIcon, PackageIcon, UserRoundArrowLeft, PackageCheck } from "lucide-react";
 
 export default function OrderTimeLine({ order }: { order: any }) {
 
@@ -8,10 +8,10 @@ export default function OrderTimeLine({ order }: { order: any }) {
     const statusIcons: any = {
         Placed: ClockIcon,
         Confirmed: CheckIcon,
-        Assigned: TruckIcon,
+        Assigned: UserRoundArrowLeft,
         Packed: PackageIcon,
         "Out for Delivery": TruckIcon,
-        Delivered: CheckIcon,
+        Delivered: PackageCheck,
     };
 
     return (
@@ -34,7 +34,7 @@ export default function OrderTimeLine({ order }: { order: any }) {
                                 {i < allStatuses.length - 1 && <div className={`w-0.5 h-12 ${i < currentIdx ? "bg-app-green" : "bg-app-border"}`} />}
                             </div>
                             <div className="pb-6">
-                                <p className={`text-sm font-semibold ${isCompleted ? "text-app-green" : "text-app-text-light"}`}>{status}</p>
+                                <p className={`mt-2 text-sm font-semibold ${isCompleted ? "text-app-green" : "text-app-text-light"}`}>{status}</p>
                                 {historyEntry && <p className="text-xs text-app-text-light mt-0.5">{new Date(historyEntry.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>}
                             </div>
                         </div>
