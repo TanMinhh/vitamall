@@ -92,7 +92,7 @@ const Navbar = () => {
                                             <Link to="/products" className="dropdown-link md:hidden"><ArrowUpRightIcon size={16}></ArrowUpRightIcon>Products</Link>
                                             <Link to="/deals" className="dropdown-link md:hidden"><ArrowUpRightIcon size={16}></ArrowUpRightIcon>Deals</Link>
                                             {user?.isAdmin && (
-                                                <Link to="/admin/products" className="dropdown-link">
+                                                <Link to="/admin" className="dropdown-link">
                                                     <ShieldIcon className="text-app-orange-dark" size={16}></ShieldIcon>
                                                     <span className="text-app-orange-dark">Admin Panel</span>
                                                 </Link>

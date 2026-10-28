@@ -77,7 +77,7 @@ const CartSidebar = () => {
                             <span className="font-medium">{deliveryFee === 0 ? <span className="text-app-success">Free</span> : `${deliveryFee.toFixed(2)} ${currency}`}</span>
                         </div>
 
-                        {deliveryFee > 0 && <p className="text-xs text-app-text-light text-center">Free delivery on orders over 100 {currency}!</p>}
+                        {deliveryFee > 0 && <p className="text-xs text-app-text-light text-center">Free delivery on orders over 10 {currency}!</p>}
                         <div className="flex justify-between text-base font-semibold border-t border-app-border pt-3">
                             <span>Total</span>
                             <span>{grantTotal.toFixed(2)} {currency}</span>

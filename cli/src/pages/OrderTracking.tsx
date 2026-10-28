@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
 import type { Order } from "../types";
-import { dummyDashboardOrdersData } from "../assets/assets";
 import Loading from "../components/Loading";
 import { ArrowLeftIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import OrderOTP from "../components/OrderTracking/OrderOTP";
 import LiveMap from "../components/OrderTracking/LiveMap";
 import OrderTimeLine from "../components/OrderTracking/OrderTimeLine";
+import api from "../config/api";
 
 
 const OrderTracking = () => {
@@ -14,12 +14,36 @@ const OrderTracking = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState<Order | null>(null);
-    const [loading] = useState(false);
-    const [liveLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [liveLocation, setLiveLocation] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
-        setOrder(dummyDashboardOrdersData.find((o) => o.id === id) as any)
+        api.get(`/orders/${id}`).then((result) => setOrder(result.data.order)).catch(() => navigate("/orders")).finally(() => setLoading(false))
     }, [id, navigate])
+
+    //Update live location every 10 second
+    useEffect(() => {
+        if (!order || ["Delivered", "Cancelled", "Placed"].includes(order.status)) return;
+        const fetchLocation = async () => {
+            try {
+                const { data } = await api.get(`/orders/${id}/location`);
+                if (data.liveLocation?.lat && data.liveLocation?.lng && data.liveLocation.updatedAt) {
+                    setLiveLocation({
+                        lat: data.liveLocation.lat,
+                        lng: data.liveLocation.lng
+                    })
+                }
+                if (data.status && data.status !== order.status) {
+                    setOrder((previous) => previous ? { ...previous, status: data.status } : previous);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchLocation();
+        const interval = setInterval(fetchLocation, 10000);
+        return () => clearInterval(interval);
+    }, [id, order, order?.status]);
 
     if (loading) return <Loading />
     if (!order) return null

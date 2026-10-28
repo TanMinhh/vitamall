@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Order } from "../types";
 import { Link, useSearchParams } from "react-router-dom";
 import { UseCart } from "../context/CartContext";
-import { dummyDashboardOrdersData, statusColors } from "../assets/assets";
+import { statusColors } from "../assets/assets";
 import Loading from "../components/Loading";
 import { CalendarIcon, ChevronRightIcon, PackageIcon } from "lucide-react";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 const MyOrders = () => {
     const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$"
@@ -15,22 +17,32 @@ const MyOrders = () => {
     const tabs = ["all", "Placed", "Out for delivery", "Delivered"]
     const { clearCart } = UseCart()
 
-    const fetchOrders = async () => {
-        setOrders(dummyDashboardOrdersData as any)
-        setLoading(false)
-    }
+    const fetchOrders = useCallback(async () => {
+        setLoading(true);
+        try {
+            const params = activeTab !== "all" ? `?status=${activeTab}` : "";
+            const { data } = await api.get(`/orders${params}`);
+            setOrders(data.orders)
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || error?.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [activeTab])
 
     useEffect(() => {
+        let timeoutId: ReturnType<typeof setTimeout>
+
         if (searchParams.get("clearCart")) {
             clearCart()
             setSearchParams({})
-            setTimeout(() => {
-                fetchOrders()
-            }, 2000)
+            timeoutId = setTimeout(fetchOrders, 2000)
         } else {
-            fetchOrders()
+            timeoutId = setTimeout(fetchOrders, 0)
         }
-    }, [activeTab])
+
+        return () => clearTimeout(timeoutId)
+    }, [activeTab, clearCart, fetchOrders, searchParams, setSearchParams])
 
     return (
         <div className="min-h-screen bg-app-cream mb-20">
