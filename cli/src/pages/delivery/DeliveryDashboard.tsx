@@ -57,7 +57,7 @@ export default function DeliveryDashboard() {
             return;
         }
         const sendLocation = (pos: GeolocationPosition) => {
-            const { latitude: lat, longtitude: lng } = pos.coords;
+            const { latitude: lat, longitude: lng } = pos.coords;
             activeOrders.forEach((order) => {
                 axios.put(`${API_URL}/delivery/my-deliveries/${order.id}/location`, { lat, lng }, getAuthHeaders()).catch(() => { });
             });
