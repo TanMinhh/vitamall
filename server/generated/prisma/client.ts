@@ -62,6 +62,16 @@ export type Product = Prisma.ProductModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
+ * Model HelpfulVote
+ * 
+ */
+export type HelpfulVote = Prisma.HelpfulVoteModel
+/**
  * Model DeliveryPartner
  * 
  */

@@ -16,6 +16,8 @@ model User {
   avatar    String?   @default("")
   addresses Address[]
   orders    Order[]
+  reviews   Review[]
+  helpfulVotes HelpfulVote[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -51,6 +53,7 @@ model Product {
   reviewCount   Int?     @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  reviews       Review[]
 }
 
 model Order {
@@ -75,6 +78,37 @@ model Order {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  reviews     Review[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rating    Int
+  text      String   @default("")
+  helpfulVotes HelpfulVote[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId, orderId])
+  @@index([productId])
+}
+
+model HelpfulVote {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reviewId])
+  @@index([reviewId])
 }
 
 model DeliveryPartner {

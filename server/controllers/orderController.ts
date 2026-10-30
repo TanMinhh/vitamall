@@ -120,7 +120,11 @@ export const getOrder = async (req: Request, res: Response) => {
     if (!order) {
         return res.status(404).json({ message: "Order not found!" });
     };
-    res.json({ order });
+    const reviewedProducts = await prisma.review.findMany({
+        where: { userId: req.user!.id },
+        select: { productId: true },
+    });
+    res.json({ order, reviewedProductIds: reviewedProducts.map((review) => review.productId) });
 }
 
 // Get all orders for Admin

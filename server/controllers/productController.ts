@@ -39,7 +39,10 @@ export const getProducts = async (req: Request, res: Response) => {
 
 //GET /api/products/:id
 export const getProduct = async (req: Request, res: Response) => {
-    const product = await prisma.product.findUnique({ where: { id: req.params.id as string } });
+    const product = await prisma.product.findUnique({
+        where: { id: req.params.id as string },
+        include: { reviews: { include: { user: { select: { name: true, avatar: true } } }, orderBy: { createdAt: "desc" } } },
+    });
     if (!product) {
         res.status(404).json({ message: "Product not found!" });
     }

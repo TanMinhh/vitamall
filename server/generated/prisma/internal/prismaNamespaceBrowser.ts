@@ -55,6 +55,8 @@ export const ModelName = {
   Address: 'Address',
   Product: 'Product',
   Order: 'Order',
+  Review: 'Review',
+  HelpfulVote: 'HelpfulVote',
   DeliveryPartner: 'DeliveryPartner'
 } as const
 
@@ -147,6 +149,30 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  orderId: 'orderId',
+  rating: 'rating',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
+
+
+export const HelpfulVoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  reviewId: 'reviewId',
+  createdAt: 'createdAt'
+} as const
+
+export type HelpfulVoteScalarFieldEnum = (typeof HelpfulVoteScalarFieldEnum)[keyof typeof HelpfulVoteScalarFieldEnum]
 
 
 export const DeliveryPartnerScalarFieldEnum = {
