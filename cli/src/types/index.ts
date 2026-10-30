@@ -43,6 +43,17 @@ export interface Product {
     reviewCount: number;
     discount: number;
     createdAt: string;
+    reviews?: Review[];
+}
+
+export interface Review {
+    id: string;
+    rating: number;
+    text: string;
+    createdAt: string;
+    user: { id: string; name: string; avatar: string | null };
+    helpful: number;
+    helpfulByCurrentUser: boolean;
 }
 
 export interface CartItem {

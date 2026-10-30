@@ -1,64 +1,47 @@
-import { useMemo } from "react";
-import type { Product } from "../types";
+import { useEffect, useState } from "react";
+import type { Product, Review } from "../types";
 import { StarIcon, ThumbsUpIcon } from "lucide-react";
+import api from "../config/api";
+import { useAuth } from "../context/AuthContext";
 
-/* ─── Dummy Reviews Section ─── */
-const REVIEWERS = [
-    { name: "Khanh Le", avatar: "KL" },
-    { name: "Minh Le", avatar: "ML" },
-    { name: "Lucas Nguyen", avatar: "LN" },
-    { name: "Harry Tran", avatar: "HT" },
-    { name: "Khoi Pham", avatar: "KP" },
-    { name: "Andy Truong", avatar: "AT" },
-    { name: "Man Gia", avatar: "MG" },
-    { name: "Khoi Dang", avatar: "KD" },
-];
+export default function ReviewsSection({ product, refreshKey }: { product: Product; refreshKey: number }) {
+    const { user, token } = useAuth();
+    const [reviews, setReviews] = useState<Review[]>([]);
 
-const COMMENTS = [
-    "Absolutely love this product! Fresh and great quality. Will definitely order again.",
-    "Good value for the price. Packaging was neat and delivery was on time.",
-    "Quality is decent but I expected it to be a bit fresher. Still a solid buy overall.",
-    "This has become a staple in my kitchen now. Highly recommended for everyone!",
-    "Exceeded my expectations. The taste and freshness were top-notch. Five stars!",
-    "Pretty good! Not the absolute best I've had, but definitely worth the price.",
-    "Arrived in perfect condition. Very satisfied with the purchase, ordering more soon.",
-    "Great product, my family loved it. The organic quality really shows in the taste.",
-];
+    useEffect(() => {
+        api.get(`/products/${product.id}/reviews`)
+            .then(({ data }) => setReviews(data.reviews))
+            .catch(() => setReviews([]));
+    }, [product.id, token, refreshKey]);
 
-function seededRandom(seed: string) {
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
-    return () => { h = (h ^ (h >>> 16)) * 0x45d9f3b; h = (h ^ (h >>> 16)) * 0x45d9f3b; h ^= h >>> 16; return (h >>> 0) / 0xffffffff; };
-}
+    const displayReviews = reviews.map((review) => ({
+        id: review.id,
+        name: review.user.name,
+        avatar: review.user.avatar || review.user.name.slice(0, 2).toUpperCase(),
+        rating: review.rating,
+        text: review.text,
+        date: new Date(review.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        helpful: review.helpful,
+        helpfulByCurrentUser: review.helpfulByCurrentUser,
+        userId: review.user.id,
+    }));
 
-export default function DummyReviewsSection({ product }: { product: Product }) {
-    const reviews = useMemo(() => {
-        const rng = seededRandom(product.id);
-        const count = Math.min(product.reviewCount, 6);
-        const daysAgo = [3, 7, 14, 21, 35, 48];
-        return Array.from({ length: count }, (_, i) => {
-            const r = REVIEWERS[(Math.floor(rng() * REVIEWERS.length) + i) % REVIEWERS.length];
-            const rating = Math.max(3, Math.min(5, Math.round(product.rating + (rng() - 0.5) * 2)));
-            const d = new Date(); d.setDate(d.getDate() - daysAgo[i % daysAgo.length]);
-            return {
-                id: i,
-                ...r,
-                rating,
-                date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-                comment: COMMENTS[(Math.floor(rng() * COMMENTS.length) + i) % COMMENTS.length],
-                helpful: Math.floor(rng() * 20) + 1,
-            };
-        });
-    }, [product]);
+    if (displayReviews.length === 0) return null;
 
     // Rating breakdown
-    const breakdown = useMemo(() => {
-        const counts = [0, 0, 0, 0, 0];
-        reviews.forEach((r) => counts[r.rating - 1]++);
-        return counts.reverse(); // 5→1
-    }, [reviews]);
+    const breakdown = [0, 0, 0, 0, 0];
+    displayReviews.forEach((review) => breakdown[review.rating - 1]++);
+    breakdown.reverse();
 
     const maxCount = Math.max(...breakdown, 1);
+
+    const toggleHelpful = async (reviewId: string) => {
+        if (!token) return;
+        const { data } = await api.post(`/products/reviews/${reviewId}/helpful`);
+        setReviews((previous) => previous.map((review) => review.id === reviewId
+            ? { ...review, helpful: data.helpful, helpfulByCurrentUser: data.helpfulByCurrentUser }
+            : review));
+    };
 
     return (
         <section className="mt-10 ">
@@ -94,7 +77,7 @@ export default function DummyReviewsSection({ product }: { product: Product }) {
 
                 {/* Individual reviews */}
                 <div className="space-y-6">
-                    {reviews.map((review) => (
+                    {displayReviews.map((review) => (
                         <div key={review.id} className="flex gap-4">
                             <div className="size-10 rounded-full bg-app-green/10 text-app-green flex-center shrink-0 text-sm font-semibold">
                                 {review.avatar}
@@ -110,9 +93,14 @@ export default function DummyReviewsSection({ product }: { product: Product }) {
                                         <StarIcon key={s} className={`size-3.5 ${s <= review.rating ? "text-app-warning fill-app-warning" : "text-app-border"}`} />
                                     ))}
                                 </div>
-                                <p className="text-sm text-zinc-600 leading-relaxed">{review.comment}</p>
-                                <button className="mt-2 flex items-center gap-1.5 text-xs text-zinc-600 hover:text-app-green transition-colors">
-                                    <ThumbsUpIcon className="size-3.5" /> Helpful ({review.helpful})
+                                <p className="text-sm text-zinc-600 leading-relaxed">{review.text || "Rated this product after purchase."}</p>
+                                <button
+                                    onClick={() => toggleHelpful(review.id)}
+                                    disabled={!token || user?.id === review.userId}
+                                    title={user?.id === review.userId ? "You cannot like your own review" : undefined}
+                                    className={`mt-2 flex items-center gap-1.5 text-xs transition-colors ${review.helpfulByCurrentUser ? "text-app-green" : "text-zinc-600 hover:text-app-green"} disabled:cursor-not-allowed disabled:opacity-60`}
+                                >
+                                    <ThumbsUpIcon className={`size-3.5 ${review.helpfulByCurrentUser ? "fill-current" : ""}`} /> Helpful ({review.helpful})
                                 </button>
                             </div>
                         </div>

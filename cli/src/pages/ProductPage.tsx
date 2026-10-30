@@ -4,32 +4,48 @@ import { useEffect, useState } from "react"
 import type { Product } from "../types"
 import Loading from "../components/Loading"
 import { ArrowLeftIcon, ArrowRightIcon, HomeIcon, LeafIcon, MinusIcon, PlusIcon, ShoppingCartIcon, StarIcon } from "lucide-react"
-import DummyReviewsSection from "../assets/DummyReviewsSection"
+import ReviewsSection from "../assets/ReviewsSection"
 import ProductCard from "../components/ProductCard"
 import api from "../config/api"
+import { useAuth } from "../context/AuthContext"
+import toast from "react-hot-toast"
 
 const ProductPage = () => {
     const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$"
     const { id } = useParams()
     const navigate = useNavigate()
+    const { token } = useAuth()
     const { items, addToCart, updateQuantity, removeFromCart } = UseCart()
     const [product, setProduct] = useState<Product | null>(null)
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
     const [loading, setLoading] = useState(true)
     const [localQuantity, setLocalQuantity] = useState(1)
+    const [reviewOrderId, setReviewOrderId] = useState<string | null>(null)
+    const [reviewRating, setReviewRating] = useState(0)
+    const [reviewText, setReviewText] = useState("")
+    const [hasReviewed, setHasReviewed] = useState(false)
+    const [reviewRefreshKey, setReviewRefreshKey] = useState(0)
 
     useEffect(() => {
         setLoading(true)
         setLocalQuantity(1)
         window.scrollTo(0, 0)
-        api.get(`/products/${id}`)
-            .then(({ data }) => {
-                setProduct(data.product)
-                return api.get(`/products?category=${data.product.category}`)
+        const productRequest = api.get(`/products/${id}`)
+        const reviewStatusRequest = token && id
+            ? api.get(`/products/${id}/review-status`)
+            : Promise.resolve({ data: { eligible: false, orderId: null, review: null } })
+        Promise.all([productRequest, reviewStatusRequest])
+            .then(([{ data: productData }, { data: reviewStatus }]) => {
+                setProduct(productData.product)
+                setReviewOrderId(reviewStatus.eligible ? reviewStatus.orderId : null)
+                setHasReviewed(!!reviewStatus.review)
+                setReviewRating(reviewStatus.review?.rating ?? 0)
+                setReviewText(reviewStatus.review?.text ?? "")
+                return api.get(`/products?category=${productData.product.category}`)
             }).then(({ data }) => {
                 setRelatedProducts(data.products.filter((p: Product) => p.id !== id))
             }).catch(() => navigate("/products")).finally(() => setLoading(false))
-    }, [id, navigate])
+    }, [id, navigate, token])
 
     if (loading) return <Loading />
     if (!product) return null
@@ -62,6 +78,20 @@ const ProductPage = () => {
             updateQuantity(product.id, cartItem.quantity + 1)
         else
             setLocalQuantity(localQuantity + 1)
+    }
+
+    const submitReview = async () => {
+        if (!reviewOrderId || !reviewText.trim()) return
+        try {
+            await api.post(`/products/${product.id}/reviews`, { orderId: reviewOrderId, rating: reviewRating, text: reviewText.trim() })
+            setHasReviewed(true)
+            const { data } = await api.get(`/products/${product.id}`)
+            setProduct(data.product)
+            setReviewRefreshKey((key) => key + 1)
+            toast.success("Review submitted!")
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Unable to submit review.")
+        }
     }
 
     return (
@@ -150,7 +180,43 @@ const ProductPage = () => {
                         </div>
                     </div>
                 </div>
-                {product.reviewCount > 0 && <DummyReviewsSection product={product} />}
+                {reviewOrderId && !hasReviewed && (
+                    <section className="mt-10 bg-white rounded-2xl p-6">
+                        <h2 className="text-xl font-semibold text-app-green mb-2">Review this product</h2>
+                        <p className="text-sm text-app-text-light mb-4">You bought this product. How would you rate it?</p>
+                        <textarea
+                            value={reviewText}
+                            onChange={(event) => setReviewText(event.target.value)}
+                            placeholder="Write your review"
+                            rows={3}
+                            className="w-full mb-4 rounded-lg border border-app-border px-3 py-2 text-sm outline-none focus:border-app-green"
+                        />
+                        <div className="flex items-center gap-3">
+                            <span className="w-5 text-sm font-medium text-app-green">{reviewRating}</span>
+                            <div className="flex">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        aria-label={`${star} stars`}
+                                        onClick={() => setReviewRating(star)}
+                                        className="p-1"
+                                    >
+                                        <StarIcon className={`size-6 ${star <= reviewRating ? "text-app-warning fill-app-warning" : "text-app-border"}`} />
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={submitReview}
+                                disabled={!reviewText.trim()}
+                                className="px-3 py-2 text-sm rounded-lg bg-app-green text-white disabled:opacity-50"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </section>
+                )}
+                <ReviewsSection product={product} refreshKey={reviewRefreshKey} />
                 {relatedProducts.length > 0 && (
                     <section className="mt-12 mb-44">
                         <div className="flex items-center justify-between mb-6">
