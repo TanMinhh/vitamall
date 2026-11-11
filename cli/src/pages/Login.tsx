@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { heroSectionData } from "../assets/assets"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { BikeIcon, Loader2Icon, LockIcon, MailIcon, UserIcon } from "lucide-react"
-import { useAuth } from "../context/AuthContext"
+import { login, register } from "../store/authSlice"
+import { useAppDispatch } from "../store/hooks"
 import toast from "react-hot-toast"
+import axios from "axios"
 
 const Login = () => {
     const [isLoginState, setIsLoginState] = useState(true)
@@ -11,19 +13,23 @@ const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
-    const { login, register } = useAuth()
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate()
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault()
         setLoading(true)
         try {
             if (isLoginState) {
-                await login(email, password)
+                await dispatch(login({ email, password })).unwrap()
+                toast.success("Login successfully!")
             } else {
-                await register(name, email, password)
+                await dispatch(register({ name, email, password })).unwrap()
+                toast.success("Register successfully!")
             }
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || error?.message);
+            navigate("/")
+        } catch (error: unknown) {
+            toast.error(axios.isAxiosError(error) ? error.response?.data?.message || error.message : error instanceof Error ? error.message : "Authentication failed");
         } finally {
             setLoading(false)
         }

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Order } from "../types";
 import { Link, useSearchParams } from "react-router-dom";
-import { UseCart } from "../context/CartContext";
+import { clearCart } from "../store/cartSlice";
+import { useAppDispatch } from "../store/hooks";
 import { statusColors } from "../assets/assets";
 import Loading from "../components/Loading";
 import { CalendarIcon, ChevronRightIcon, PackageIcon } from "lucide-react";
@@ -15,7 +16,7 @@ const MyOrders = () => {
     const [activeTab, setActiveTab] = useState("all")
     const [searchParams, setSearchParams] = useSearchParams()
     const tabs = ["all", "Placed", "Out for delivery", "Delivered"]
-    const { clearCart } = UseCart()
+    const dispatch = useAppDispatch()
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
@@ -34,7 +35,7 @@ const MyOrders = () => {
         let timeoutId: ReturnType<typeof setTimeout>
 
         if (searchParams.get("clearCart")) {
-            clearCart()
+            dispatch(clearCart())
             setSearchParams({})
             timeoutId = setTimeout(fetchOrders, 2000)
         } else {
@@ -42,7 +43,7 @@ const MyOrders = () => {
         }
 
         return () => clearTimeout(timeoutId)
-    }, [activeTab, clearCart, fetchOrders, searchParams, setSearchParams])
+    }, [activeTab, dispatch, fetchOrders, searchParams, setSearchParams])
 
     return (
         <div className="min-h-screen bg-app-cream mb-20">

@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import type { Product, Review } from "../types";
 import { StarIcon, ThumbsUpIcon } from "lucide-react";
 import api from "../config/api";
-import { useAuth } from "../context/AuthContext";
+import { useAppSelector } from "../store/hooks";
 
 export default function ReviewsSection({ product, refreshKey }: { product: Product; refreshKey: number }) {
-    const { user, token } = useAuth();
+    const user = useAppSelector((state) => state.auth.user);
+    const token = useAppSelector((state) => state.auth.token);
     const [reviews, setReviews] = useState<Review[]>([]);
 
     useEffect(() => {

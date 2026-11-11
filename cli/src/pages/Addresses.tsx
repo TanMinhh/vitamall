@@ -4,12 +4,13 @@ import { MapPinIcon, PlusIcon } from "lucide-react";
 import Loading from "../components/Loading";
 import AddressCard from "../components/AddressCard";
 import AddressForm from "../components/AddressForm";
-import { useAuth } from "../context/AuthContext";
+import { updateUser } from "../store/authSlice";
+import { useAppDispatch } from "../store/hooks";
 import api from "../config/api";
 import toast from "react-hot-toast";
 
 const Addresses = () => {
-    const { updateUser } = useAuth();
+    const dispatch = useAppDispatch();
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [loading, setLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
@@ -73,12 +74,12 @@ const Addresses = () => {
             if (editingId) {
                 await api.put(`/addresses/${editingId}`, payload)
                 const addressList = await fetchAddresses()
-                updateUser({ addresses: addressList })
+                dispatch(updateUser({ addresses: addressList }))
                 toast.success("Address Updated!")
             } else {
                 await api.post(`/addresses`, payload)
                 const addressList = await fetchAddresses()
-                updateUser({ addresses: addressList })
+                dispatch(updateUser({ addresses: addressList }))
                 toast.success("Address Added!")
             }
             resetForm()

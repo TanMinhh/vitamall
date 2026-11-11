@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.13.0",
+    "@reduxjs/toolkit": "^2.13.0",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.20.0",
     "leaflet": "^1.9.4",
@@ -21,6 +22,7 @@
     "react-dom": "^19.2.6",
     "react-hot-toast": "^2.6.0",
     "react-leaflet": "^5.0.0",
+    "react-redux": "^9.3.1",
     "react-router-dom": "^7.15.1",
     "tailwindcss": "^4.3.0"
   },

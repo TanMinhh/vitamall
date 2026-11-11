@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { UseCart } from "../context/CartContext";
+import { removeFromCart, selectCartTotal, setIsCartOpen, updateQuantity } from "../store/cartSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { ArrowRightIcon, MinusIcon, PlusIcon, ShoppingBagIcon, Trash2Icon, XIcon } from "lucide-react";
 
 
 const CartSidebar = () => {
 
     const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
-    const { items, updateQuantity, removeFromCart, cartTotal, isCartOpen, setIsCartOpen } = UseCart()
+    const dispatch = useAppDispatch()
+    const { items, isCartOpen } = useAppSelector((state) => state.cart)
+    const cartTotal = useAppSelector(selectCartTotal)
     const navigate = useNavigate()
     if (!isCartOpen) return null
     const deliveryFee = cartTotal > 10 ? 0 : 5;
@@ -14,7 +17,7 @@ const CartSidebar = () => {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black/40 z-50 transition-opacity" onClick={() => setIsCartOpen(false)}></div>
+            <div className="fixed inset-0 bg-black/40 z-50 transition-opacity" onClick={() => dispatch(setIsCartOpen(false))}></div>
             <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col animate-slide-in-right">
                 <div className="flex items-center justify-between p-5 border-b border-app-border">
                     <div className="flex items-center gap-2">
@@ -22,7 +25,7 @@ const CartSidebar = () => {
                         <h2 className="text-lg font-medium">Your Cart</h2>
                         <span className="px-2 py-0.5 text-xs font-semibold bg-app-cream rounded-full">{items.length} items</span>
                     </div>
-                    <button onClick={() => setIsCartOpen(false)} className="p-2 rounded-xl hover:bg-app-cream transition-colors">
+                    <button onClick={() => dispatch(setIsCartOpen(false))} className="p-2 rounded-xl hover:bg-app-cream transition-colors">
                         <XIcon className="size-5"></XIcon>
                     </button>
                 </div>
@@ -42,11 +45,11 @@ const CartSidebar = () => {
                                     <p className="text-xs text-app-text-light">{item.product.price.toFixed(2)} {currency} / {item.product.unit}</p>
                                     <div className="flex items-center justify-between mt-2">
                                         <div className="flex items-center gap-1.5">
-                                            <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
+                                            <button onClick={() => dispatch(updateQuantity({ productId: item.product.id, quantity: item.quantity - 1 }))} className="size-7 rounded-lg bg-white border border-app-border flex-center">
                                                 <MinusIcon className="size-3"></MinusIcon>
                                             </button>
                                             <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="size-7 rounded-lg bg-white border border-app-border flex-center">
+                                            <button onClick={() => dispatch(updateQuantity({ productId: item.product.id, quantity: item.quantity + 1 }))} className="size-7 rounded-lg bg-white border border-app-border flex-center">
                                                 <PlusIcon className="size-3"></PlusIcon>
                                             </button>
                                         </div>
@@ -54,7 +57,7 @@ const CartSidebar = () => {
                                             <span className="text-sm font-semibold">
                                                 {(item.product.price * item.quantity).toFixed(2)} {currency}
                                             </span>
-                                            <button onClick={() => removeFromCart(item.product.id)} className="p-1 text-app-text-light hover:text-app-error transition-colors">
+                                            <button onClick={() => dispatch(removeFromCart(item.product.id))} className="p-1 text-app-text-light hover:text-app-error transition-colors">
                                                 <Trash2Icon className="size-4" />
                                             </button>
                                         </div>
@@ -82,7 +85,7 @@ const CartSidebar = () => {
                             <span>Total</span>
                             <span>{grantTotal.toFixed(2)} {currency}</span>
                         </div>
-                        <button onClick={() => { setIsCartOpen(false); navigate('/checkout'); window.scrollTo(0, 0) }} className="w-full py-3 bg-app-orange text-white font-semibold rounded-xl hover:bg-app-orange-dark transition-colors flex-center gap-2 active:scale-[0.98]">
+                        <button onClick={() => { dispatch(setIsCartOpen(false)); navigate('/checkout'); window.scrollTo(0, 0) }} className="w-full py-3 bg-app-orange text-white font-semibold rounded-xl hover:bg-app-orange-dark transition-colors flex-center gap-2 active:scale-[0.98]">
                             Proceed to Checkout <ArrowRightIcon className="size-4"></ArrowRightIcon>
                         </button>
                     </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { UseCart } from "../context/CartContext";
+import { clearCart, selectCartTotal } from "../store/cartSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useState } from "react";
 import type { Address } from "../types";
 import { ArrowLeft, CheckIcon, ChevronRightIcon, CreditCardIcon, MapPinIcon } from "lucide-react";
@@ -8,13 +9,14 @@ import CheckoutPayment from "../components/Checkout/CheckoutPayment";
 import CheckoutReview from "../components/Checkout/CheckoutReview";
 import toast from "react-hot-toast";
 import api from "../config/api";
-import { useAuth } from "../context/AuthContext";
 
 const Checkout = () => {
     const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
     const navigate = useNavigate();
-    const { items, cartTotal, clearCart } = UseCart();
-    const { user } = useAuth();
+    const dispatch = useAppDispatch();
+    const items = useAppSelector((state) => state.cart.items);
+    const cartTotal = useAppSelector(selectCartTotal);
+    const user = useAppSelector((state) => state.auth.user);
     const [step, setStep] = useState("address");
     const [loading, setLoading] = useState(false);
     const [address, setAddress] = useState<Address>({
@@ -54,7 +56,7 @@ const Checkout = () => {
                 window.location.href = data.url;
                 return;
             }
-            clearCart();
+            dispatch(clearCart());
             toast.success("Order placed successfully!");
             navigate(`/orders/${data.order.id}`);
         } catch (error: any) {

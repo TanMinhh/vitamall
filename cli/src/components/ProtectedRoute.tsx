@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAppSelector } from "../store/hooks"
 import Loading from "./Loading"
 
 const ProtectedRoute = () => {
 
-    const { user, loading } = useAuth()
+    const { user, loading } = useAppSelector((state) => state.auth)
     if (loading)
         return <Loading />
     if (!user)

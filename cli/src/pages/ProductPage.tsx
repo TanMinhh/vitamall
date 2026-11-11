@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { UseCart } from "../context/CartContext"
+import { addToCart, removeFromCart, updateQuantity } from "../store/cartSlice"
+import { useAppDispatch, useAppSelector } from "../store/hooks"
 import { useEffect, useState } from "react"
 import type { Product } from "../types"
 import Loading from "../components/Loading"
@@ -7,15 +8,15 @@ import { ArrowLeftIcon, ArrowRightIcon, HomeIcon, LeafIcon, MinusIcon, PlusIcon,
 import ReviewsSection from "../assets/ReviewsSection"
 import ProductCard from "../components/ProductCard"
 import api from "../config/api"
-import { useAuth } from "../context/AuthContext"
 import toast from "react-hot-toast"
 
 const ProductPage = () => {
     const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$"
     const { id } = useParams()
     const navigate = useNavigate()
-    const { token } = useAuth()
-    const { items, addToCart, updateQuantity, removeFromCart } = UseCart()
+    const dispatch = useAppDispatch()
+    const token = useAppSelector((state) => state.auth.token)
+    const items = useAppSelector((state) => state.cart.items)
     const [product, setProduct] = useState<Product | null>(null)
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
     const [loading, setLoading] = useState(true)
@@ -65,9 +66,9 @@ const ProductPage = () => {
     const handleMinus = () => {
         if (inCart) {
             if (cartItem.quantity > 1)
-                updateQuantity(product.id, cartItem.quantity - 1)
+                dispatch(updateQuantity({ productId: product.id, quantity: cartItem.quantity - 1 }))
             else
-                removeFromCart(product.id)
+                dispatch(removeFromCart(product.id))
         } else {
             setLocalQuantity(Math.max(1, localQuantity - 1))
         }
@@ -75,7 +76,7 @@ const ProductPage = () => {
 
     const handlePlus = () => {
         if (inCart)
-            updateQuantity(product.id, cartItem.quantity + 1)
+            dispatch(updateQuantity({ productId: product.id, quantity: cartItem.quantity + 1 }))
         else
             setLocalQuantity(localQuantity + 1)
     }
@@ -172,7 +173,7 @@ const ProductPage = () => {
                                         <PlusIcon className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <button onClick={() => { if (!inCart) addToCart(product, localQuantity) }} disabled={product.stock === 0} className={`flex-1 py-3 font-semibold rounded-xl transition-colors flex-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${inCart ? "bg-app-cream text-app-green border border-app-green" : "bg-app-orange text-white hover:bg-app-orange-dark"}`}>
+                                <button onClick={() => { if (!inCart) dispatch(addToCart({ product, quantity: localQuantity })) }} disabled={product.stock === 0} className={`flex-1 py-3 font-semibold rounded-xl transition-colors flex-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${inCart ? "bg-app-cream text-app-green border border-app-green" : "bg-app-orange text-white hover:bg-app-orange-dark"}`}>
                                     <ShoppingCartIcon className="w-4 h-4" />
                                     {inCart ? "Added to Cart!" : "Add to Cart"}
                                 </button>

@@ -1,12 +1,14 @@
 import { ArrowUpRightIcon, BikeIcon, ChevronDownIcon, LogOutIcon, MapPinIcon, MenuIcon, PackageIcon, SearchIcon, ShieldIcon, ShoppingCartIcon, UserIcon, XIcon } from "lucide-react"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { UseCart } from "../context/CartContext"
-import { useAuth } from "../context/AuthContext"
+import { useAppDispatch, useAppSelector } from "../store/hooks"
+import { logout } from "../store/authSlice"
+import { selectCartCount, setIsCartOpen } from "../store/cartSlice"
 
 const Navbar = () => {
-    const { user, logout } = useAuth()
-    const { cartCount, setIsCartOpen } = UseCart()
+    const dispatch = useAppDispatch()
+    const user = useAppSelector((state) => state.auth.user)
+    const cartCount = useAppSelector(selectCartCount)
     const [searchQuery, setSearchQuery] = useState("")
     const [userMenuOpen, setUserMenuOpen] = useState(false)
     const navigate = useNavigate()
@@ -20,7 +22,7 @@ const Navbar = () => {
     }
 
     const handleLogout = () => {
-        logout()
+        dispatch(logout())
         setUserMenuOpen(false)
         navigate("/")
     }
@@ -53,7 +55,7 @@ const Navbar = () => {
                     </form>
 
                     <div className="flex items-center gap-3">
-                        <button className="relative p-2 rounded-xl" onClick={() => setIsCartOpen(true)}>
+                        <button className="relative p-2 rounded-xl" onClick={() => dispatch(setIsCartOpen(true))}>
                             <ShoppingCartIcon className="size-5 text-zinc-900"></ShoppingCartIcon>
                             {cartCount > 0 && <span className="absolute -top-1 -right-1 size-4 bg-app-orange text-white text-[10px] rounded-full flex-center">{cartCount}</span>}
                         </button>
