@@ -2,10 +2,14 @@ import { useEffect, useState } from "react"
 import type { Product } from "../types"
 import { Link, useSearchParams } from "react-router-dom";
 import { Home, Search } from "lucide-react";
-import Loading from "../components/Loading";
 import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import api from "../config/api";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
+import { debounce } from "../utils/debounce";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 const SearchResults = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -13,12 +17,41 @@ const SearchResults = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     useEffect(() => {
-        if (!query) return;
-        setLoading(true);
-        api.get(`/products?search=${encodeURIComponent(query)}`)
-            .then((res) => setProducts(res.data.products))
-            .catch((error: any) => toast.error(error.response?.data?.message || error?.message))
-            .finally(() => setLoading(false))
+        const normalizedQuery = query.trim();
+        if (normalizedQuery.length < 2) {
+            setProducts([]);
+            setLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        const loadResults = debounce(async () => {
+            setLoading(true);
+            try {
+                const response = await api.get(
+                    `/products?search=${encodeURIComponent(normalizedQuery)}`,
+                    { signal: controller.signal },
+                );
+                setProducts(response.data.products);
+            } catch (error: unknown) {
+                if (!controller.signal.aborted) {
+                    const message = error instanceof AxiosError
+                        ? error.response?.data?.message || error.message
+                        : error instanceof Error
+                            ? error.message
+                            : "Unable to search products";
+                    toast.error(message);
+                }
+            } finally {
+                if (!controller.signal.aborted) setLoading(false);
+            }
+        }, SEARCH_DEBOUNCE_MS);
+        loadResults();
+
+        return () => {
+            loadResults.cancel();
+            controller.abort();
+        };
     }, [query]);
 
     return (
@@ -36,7 +69,11 @@ const SearchResults = () => {
                     <p>{loading ? "Searching..." : `${products.length} items found`}</p>
                 </div>
                 {loading ? (
-                    <Loading />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" aria-label="Loading products">
+                        {Array.from({ length: 8 }).map((_, index) => (
+                            <ProductCardSkeleton key={index} />
+                        ))}
+                    </div>
                 ) : products.length === 0 ? (
                     <div className="text-center py-20">
                         <Search className="size-16 text-app-border mx-auto mb-4" />
