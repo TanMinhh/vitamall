@@ -16,8 +16,17 @@ const deliveryAuth = async (req: Request, res: Response, next: NextFunction) => 
             return res.status(403).json({ message: "Account is deactivated" });
         req.partner = partner;
         next();
-    } catch (error) {
-        console.log(error);
+    } catch (error: unknown) {
+        if (error instanceof jwt.TokenExpiredError) {
+            const expiredAt = error.expiredAt.toISOString();
+            console.debug(`Delivery JWT expired at ${expiredAt}`);
+            return res.status(401).json({
+                message: "Your delivery session has expired.",
+                expiredAt,
+            });
+        }
+
+        console.error(error);
         return res.status(401).json({ message: "Token is not valid!" });
     }
 }

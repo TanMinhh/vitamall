@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom"
 import type { Product } from "../types"
 import { ChevronDown, Home, SlidersHorizontal, XIcon } from "lucide-react"
 import ProductCard from "../components/ProductCard"
-import Loading from "../components/Loading"
+import ProductCardSkeleton from "../components/ProductCardSkeleton"
 import FilterPanel from "../components/FilterPanel"
 import api from "../config/api"
 import toast from "react-hot-toast"
@@ -184,7 +184,11 @@ const Products = () => {
                         </div>
 
                         {loading ? (
-                            <Loading></Loading>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 xl:gap-8" aria-label="Loading products">
+                                {Array.from({ length: 8 }).map((_, index) => (
+                                    <ProductCardSkeleton key={index} />
+                                ))}
+                            </div>
                         ) : sortedProducts.length === 0 ? (
                             <div className="text-center py-16">
                                 <p className="text-lg font-semibold text-app-green mb-2">No product found</p>

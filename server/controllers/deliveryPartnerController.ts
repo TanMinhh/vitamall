@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const generateToken = (id: string) => {
-    return jwt.sign({ id, role: "delivery" }, process.env.JWT_SECRET as string, { expiresIn: "30d" });
+    return jwt.sign({ id, role: "delivery" }, process.env.JWT_SECRET as string, { expiresIn: "5s" });
 };
 
 // Delivery Partner Login

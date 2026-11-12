@@ -3,19 +3,21 @@ import type { Product } from "../../types"
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import ProductCard from "../ProductCard"
+import ProductCardSkeleton from "../ProductCardSkeleton"
 import api from "../../config/api"
 import toast from "react-hot-toast"
 
 
 const PopularProducts = () => {
     const [products, setProducts] = useState<Product[]>([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         api.get("/products?sort=rating").then(({ data }) => {
             setProducts(data.products)
         }).catch((error: any) => {
             toast.error(error.response.data.message || error?.message)
-        })
+        }).finally(() => setLoading(false))
     }, [])
 
     return (
@@ -31,9 +33,11 @@ const PopularProducts = () => {
                     </Link>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 xl:gap-8">
-                    {products.slice(0, 10).map((product) => (
-                        <ProductCard key={product.id} product={product}></ProductCard>
-                    ))}
+                    {loading
+                        ? Array.from({ length: 5 }).map((_, index) => <ProductCardSkeleton key={index} />)
+                        : products.slice(0, 10).map((product) => (
+                            <ProductCard key={product.id} product={product}></ProductCard>
+                        ))}
                 </div>
             </div>
         </section>

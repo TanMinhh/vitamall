@@ -11,8 +11,17 @@ const auth = (req: Request, res: Response, next: NextFunction) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
         req.user = { id: decoded.id };
         next();
-    } catch (error) {
-        console.log(error);
+    } catch (error: unknown) {
+        if (error instanceof jwt.TokenExpiredError) {
+            const expiredAt = error.expiredAt.toISOString();
+            console.debug(`JWT expired at ${expiredAt}`);
+            return res.status(401).json({
+                message: "Your session has expired.",
+                expiredAt,
+            });
+        }
+
+        console.error(error);
         return res.status(401).json({ message: "Invalid token!" });
     }
 }

@@ -36,7 +36,10 @@ export default function DeliveryDashboard() {
             const { data } = await axios.get(`${API_URL}/delivery/my-deliveries?status=${tab}`, getAuthHeaders());
             setOrders(data.orders);
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Failed to load deliveries!");
+            const expiredAt = error?.response?.data?.expiredAt;
+            if (!expiredAt) {
+                toast.error(error?.response?.data?.message || "Failed to load deliveries!");
+            }
         } finally {
             setLoading(false);
         }

@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 
 //Generate JSONWEBTOKEN token
 const generateToken = (id: string) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: "30d" })
+    return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: "5s" })
 }
 
 //Check Admin
